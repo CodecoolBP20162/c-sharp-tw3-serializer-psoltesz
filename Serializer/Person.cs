@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 
 namespace Serializer
 {
@@ -12,7 +13,7 @@ namespace Serializer
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime DateOfRecording { get; set; }
-        public int SerialNumber { get; set; }
+        public string SerialNumber { get; set; }
 
         public Person(string name, string address, string phoneNumber, DateTime dateOfRecording)
         {
@@ -28,7 +29,6 @@ namespace Serializer
             Address = (string)info.GetValue("Address", typeof(string));
             PhoneNumber = (string)info.GetValue("PhoneNumber", typeof(string));
             DateOfRecording = (DateTime)info.GetValue("DateOfRecording", typeof(DateTime));
-            // SerialNumber = StreamingContext. has to get serialnumber from filename; todo
         }
 
         public void Serialize(string output)
@@ -45,6 +45,13 @@ namespace Serializer
             IFormatter formatter = new BinaryFormatter();
             Person deserializedObject = (Person)formatter.Deserialize(stream);
             stream.Close();
+            string re1 = ".*?"; // Non-greedy match on filler
+            string re2 = "(9)"; // Any Single Character 1
+            string re3 = "(2)"; // Any Single Character 2
+
+            Regex r = new Regex(re1 + re2 + re3, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Match m = r.Match(input);
+            deserializedObject.SerialNumber = m.Groups[1].ToString() + m.Groups[2].ToString();
             return deserializedObject;
         }
 
