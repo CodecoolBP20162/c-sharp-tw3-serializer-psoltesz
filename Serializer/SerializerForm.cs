@@ -11,22 +11,22 @@ namespace Serializer
         {
             InitializeComponent();
             personControl.FillStack();
+            personControl.DeserializeToList();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            personControl.DeserializeToList();
             FillContent(personControl.GetEntryContent(0));
         }
 
         private void previousButton_Click(object sender, EventArgs e)
         {
-            FillContent(personControl.GetEntryContent(0));
+            FillContent(personControl.GetEntryContent(personControl.StepBack()));
         }
 
         private void nextButton_Click(object sender, EventArgs e)
         {
-            FillContent(personControl.GetEntryContent(0));
+            FillContent(personControl.GetEntryContent(personControl.StepForward()));
         }
 
         private void firstButton_Click(object sender, EventArgs e)
@@ -36,13 +36,12 @@ namespace Serializer
 
         private void lastButton_Click(object sender, EventArgs e)
         {
-            FillContent(personControl.GetEntryContent(personControl.persons.Count));
+            FillContent(personControl.GetEntryContent(personControl.persons.Count - 1));
         }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            Person person = new Person(nameTextBox.Text, addressTextBox.Text, phoneTextBox.Text, DateTime.Now);
-            person.Serialize(personControl.path + personControl.GetNextSerialNumber());
+            personControl.SavePerson(nameTextBox.Text, addressTextBox.Text, phoneTextBox.Text);
         }
 
         private void FillContent(Person person)

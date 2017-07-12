@@ -2,7 +2,6 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.RegularExpressions;
 
 namespace Serializer
 {
@@ -25,10 +24,10 @@ namespace Serializer
 
         public Person(SerializationInfo info, StreamingContext context)
         {
-            Name = (string)info.GetValue("Name", typeof(string));
-            Address = (string)info.GetValue("Address", typeof(string));
-            PhoneNumber = (string)info.GetValue("PhoneNumber", typeof(string));
-            DateOfRecording = (DateTime)info.GetValue("DateOfRecording", typeof(DateTime));
+            Name = (string)info.GetValue("name", typeof(string));
+            Address = (string)info.GetValue("address", typeof(string));
+            PhoneNumber = (string)info.GetValue("phoneNumber", typeof(string));
+            DateOfRecording = (DateTime)info.GetValue("dateOfRecording", typeof(DateTime));
         }
 
         public void Serialize(string output)
@@ -43,24 +42,22 @@ namespace Serializer
         {
             Stream stream = new FileStream(input, FileMode.Open, FileAccess.Read, FileShare.Read);
             IFormatter formatter = new BinaryFormatter();
-            Person deserializedObject = (Person)formatter.Deserialize(stream);
-            stream.Close();
-            string re1 = ".*?"; // Non-greedy match on filler
-            string re2 = "(9)"; // Any Single Character 1
-            string re3 = "(2)"; // Any Single Character 2
-
-            Regex r = new Regex(re1 + re2 + re3, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            Match m = r.Match(input);
-            deserializedObject.SerialNumber = m.Groups[1].ToString() + m.Groups[2].ToString();
-            return deserializedObject;
+            try
+            {
+                Person deserializedObject = (Person)formatter.Deserialize(stream);
+                deserializedObject.SerialNumber = PersonControl.CheckRegexPattern(input);
+                stream.Close();
+                return deserializedObject;
+            }
+            catch { stream.Close(); return null; }
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Name", Name, typeof(string));
-            info.AddValue("Address", Name, typeof(string));
-            info.AddValue("PhoneNumber", Name, typeof(string));
-            info.AddValue("DateOfRecording", DateOfRecording, typeof(DateTime));
+            info.AddValue("name", Name, typeof(string));
+            info.AddValue("address", Address, typeof(string));
+            info.AddValue("phoneNumber", PhoneNumber, typeof(string));
+            info.AddValue("dateOfRecording", DateOfRecording, typeof(DateTime));
         }
     }
 }
